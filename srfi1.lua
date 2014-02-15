@@ -353,7 +353,7 @@ local function car_cdr( lst )
 end
 
 
-local function splitat( lst, n )
+local function split_at( lst, n )
   if lst == nil or n == 0 then
     return nil, lst
   else
@@ -370,7 +370,7 @@ end
 
 
 local function take( lst, n )
-  return (splitat( lst, n ))
+  return (split_at( lst, n ))
 end
 
 
@@ -1346,7 +1346,7 @@ return {
   ninth = ninth,
   tenth = tenth,
   car_cdr = car_cdr,
-  splitat = splitat,
+  split_at = split_at,
   take = take,
   drop = drop,
   take_right = take_right,
