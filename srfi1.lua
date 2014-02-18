@@ -1,9 +1,9 @@
 -- Linked list implementation following the Scheme's standard list
 -- library as specified by SRFI-1.
 -- http://srfi.schemers.org/srfi-1/srfi-1.html
--- dotted-lists are not supported, there are no "linear-update"
--- variants, and the whole "association lists" and "set operations
--- on lists" parts are missing (better use tables for that anyways)
+-- dotted-lists are not supported, and the whole "association lists"
+-- and "set operations on lists" parts are missing (better use tables
+-- for that anyways)
 
 local implementation = "array"
 --implementation = "table"
@@ -369,8 +369,27 @@ local function split_at( lst, n )
 end
 
 
+local function split_at_( lst, n )
+  if lst == nil or n == 0 then
+    return nil, lst
+  else
+    local last, p = lst, cdr( lst )
+    while p ~= nil and n > 1 do
+      last, p, n = p, cdr( p ), n - 1
+    end
+    set_cdr( last, nil )
+    return lst, p
+  end
+end
+
+
 local function take( lst, n )
   return (split_at( lst, n ))
+end
+
+
+local function take_( lst, n )
+  return (split_at_( lst, n ))
 end
 
 
@@ -403,6 +422,21 @@ local function drop_right( lst, n )
     end
   end
   return newlist
+end
+
+
+local function drop_right_( lst, n )
+  local p, front = lst, drop( lst, n )
+  if front ~= nil then
+    front = cdr( front )
+    while front ~= nil do
+      p, front = cdr( p ), cdr( front )
+    end
+    set_cdr( p, nil )
+    return lst
+  else
+    return nil
+  end
 end
 
 
@@ -481,6 +515,31 @@ local function append( ... )
 end
 
 
+local function append_( ... )
+  local lst, n = (...), select( '#', ... )
+  if n > 0 then
+    local p
+    if lst ~= nil then
+      p = take_right( lst, 1 )
+    end
+    for i = 2, n do
+      local li = select( i, ... )
+      if li ~= nil then
+        if p == nil then
+          lst = li
+        else
+          set_cdr( p, li )
+        end
+        if i ~= n then
+          p = take_right( li, 1 )
+        end
+      end
+    end
+  end
+  return lst
+end
+
+
 local function concatenate( llst )
   local nlst, last
   if llst ~= nil then
@@ -514,6 +573,21 @@ local function reverse( lst )
     newlist, lst = cons( car( lst ), newlist ), cdr( lst )
   end
   return newlist
+end
+
+
+local function reverse_( lst )
+  if lst == nil then
+    return nil
+  else
+    local c
+    while lst ~= nil do
+      local tl = cdr( lst )
+      set_cdr( lst, c )
+      c, lst = lst, tl
+    end
+    return c
+  end
 end
 
 
@@ -756,6 +830,43 @@ local function map( f, ... )
       end
       last = c
     end
+  end
+end
+
+
+local function map_1( f, lst )
+  local li = lst
+  while li ~= nil do
+    set_car( li, f( car( li ) ) )
+    li = cdr( li )
+  end
+  return lst
+end
+
+
+local function map_( f, ... )
+  local n = select( '#', ... )
+  if n <= 1 then
+    return map_1( f, (...) )
+  else
+    local cars, cdrs, lst, prev = { ... }, { ... }, (...), nil
+    while true do
+      local li = cdrs[ 1 ]
+      if li == nil then return lst end
+      cars[ 1 ], cdrs[ 1 ], prev = car( li ), cdr( li ), li
+      for i = 2, n do
+        li = cdrs[ i ]
+        if li == nil then
+          if prev then
+            set_cdr( prev, nil )
+          end
+          return lst
+        end
+        cars[ i ], cdrs[ i ] = car( li ), cdr( li )
+      end
+      set_car( prev, f( unpack( cars, 1, n ) ) )
+    end
+    return lst
   end
 end
 
@@ -1043,6 +1154,25 @@ local function filter( p, lst, ... )
 end
 
 
+local function filter_( p, lst, ... )
+  while lst ~= nil and not p( car( lst ), ... ) do
+    lst = cdr( lst )
+  end
+  if lst ~= nil then
+    local prev, li = lst, cdr( lst )
+    while li ~= nil do
+      if not p( car( li ), ... ) then
+        li = cdr( li )
+        set_cdr( prev, li )
+      else
+        prev, li = li, cdr( li )
+      end
+    end
+  end
+  return lst
+end
+
+
 local function partition( p, lst, ... )
   local yes, no, lastyes, lastno
   while lst ~= nil do
@@ -1069,6 +1199,36 @@ local function partition( p, lst, ... )
 end
 
 
+local function partition_( p, lst, ... )
+  local yes, no, lastyes, lastno
+  while lst ~= nil do
+    if p( car( lst ), ... ) then
+      if yes == nil then
+        yes = lst
+      else
+        set_cdr( lastyes, lst )
+      end
+      lastyes = lst
+    else
+      if no == nil then
+        no = lst
+      else
+        set_cdr( lastno, lst )
+      end
+      lastno = lst
+    end
+    lst = cdr( lst )
+  end
+  if lastyes then
+    set_cdr( lastyes, nil )
+  end
+  if lastno then
+    set_cdr( lastno, nil )
+  end
+  return yes, no
+end
+
+
 local function remove( p, lst, ... )
   local newlist, last
   while lst ~= nil and p( car( lst ), ... ) do
@@ -1088,6 +1248,25 @@ local function remove( p, lst, ... )
     end
   end
   return newlist
+end
+
+
+local function remove_( p, lst, ... )
+  while lst ~= nil and p( car( lst ), ... ) do
+    lst = cdr( lst )
+  end
+  if lst ~= nil then
+    local prev, li = lst, cdr( lst )
+    while li ~= nil do
+      if p( car( li ), ... ) then
+        li = cdr( li )
+        set_cdr( prev, li )
+      else
+        prev, li = li, cdr( li )
+      end
+    end
+  end
+  return lst
 end
 
 
@@ -1220,6 +1399,21 @@ local function span( p, lst, ... )
 end
 
 
+local function span_( p, lst, ... )
+  local li, tl = lst, nil
+  while li ~= nil and p( car( li ), ... ) do
+    tl, li = li, cdr( li )
+  end
+  if tl ~= nil then
+    set_cdr( tl, nil )
+  end
+  if lst == li then
+    lst = nil
+  end
+  return lst, li
+end
+
+
 local function lbreak( p, lst, ... )
   local newlist, last
   while lst ~= nil do
@@ -1237,8 +1431,28 @@ local function lbreak( p, lst, ... )
 end
 
 
+local function lbreak_( p, lst, ... )
+  local li, tl = lst, nil
+  while li ~= nil and not p( car( li ), ... ) do
+    tl, li = li, cdr( li )
+  end
+  if tl ~= nil then
+    set_cdr( tl, nil )
+  end
+  if lst == li then
+    lst = nil
+  end
+  return lst, li
+end
+
+
 local function take_while( p, lst, ... )
   return (span( p, lst, ... ))
+end
+
+
+local function take_while_( p, lst, ... )
+  return (span_( p, lst, ... ))
 end
 
 
@@ -1347,13 +1561,13 @@ return {
   tenth = tenth,
   car_cdr = car_cdr,
   split_at = split_at,
-  split_at_ = split_at, -- TODO
+  split_at_ = split_at_,
   take = take,
-  take_ = take, -- TODO
+  take_ = take_,
   drop = drop,
   take_right = take_right,
   drop_right = drop_right,
-  drop_right_ = drop_right, -- TODO
+  drop_right_ = drop_right_,
   ref = ref,
   last_pair = last_pair,
   last = last,
@@ -1361,11 +1575,11 @@ return {
   length = length,
   length_ = length_,
   append = append,
-  append_ = append, -- TODO
+  append_ = append_,
   concatenate = concatenate,
   concatenate_ = concatenate, -- TODO
   reverse = reverse,
-  reverse_ = reverse, -- TODO
+  reverse_ = reverse_,
   append_reverse = append_reverse,
   append_reverse_ = append_reverse, -- TODO
   append_map = append_map,
@@ -1378,7 +1592,7 @@ return {
   count = count,
   -- fold, unfold & map
   map = map,
-  map_ = map, -- TODO
+  map_ = map_,
   for_each = for_each,
   pair_for_each = pair_for_each,
   map_in_order = map,
@@ -1393,11 +1607,11 @@ return {
   unfold_right = unfold_right,
   -- filtering & partitioning
   filter = filter,
-  filter_ = filter, -- TODO
+  filter_ = filter_,
   partition = partition,
-  partition_ = partition, -- TODO
+  partition_ = partition_,
   remove = remove,
-  remove_ = remove, -- TODO
+  remove_ = remove_,
   -- searching
   find_tail = find_tail,
   member = member,
@@ -1406,11 +1620,11 @@ return {
   every = every,
   index = index,
   span = span,
-  span_ = span, -- TODO
+  span_ = span_,
   lbreak = lbreak, -- break is a reserved identifier in Lua!
-  lbreak_ = lbreak, -- TODO
+  lbreak_ = lbreak_,
   take_while = take_while,
-  take_while_ = take_while, -- TODO
+  take_while_ = take_while_,
   drop_while = drop_while,
   -- deleting
   delete = delete,

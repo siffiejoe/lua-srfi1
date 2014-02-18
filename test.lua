@@ -416,11 +416,13 @@ do -- drop_right_
   local l1b = L.copy( l1a )
   local l1c = L.copy( l1a )
   local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
   assert( L.is_equal( L.drop_right_( l1a, 2 ), L.list( 1, 2 ) ) )
   assert( L.is_equal( L.drop_right_( l1b, 0 ), l1b ) )
   assert( L.drop_right_( nil, 2 ) == nil )
   assert( L.drop_right_( l1c, 4 ) == nil )
   assert( L.drop_right_( l1d, 6 ) == nil )
+  assert( L.is_equal( L.drop_right_( l1e, 3 ), L.list( 1 ) ) )
   local l2 = L.drop_right_( L.copy( large_lst ), LARGE-3 )
   assert( L.is_equal( l2, L.list( 1, 2, 3 ) ) )
 end
