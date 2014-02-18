@@ -109,8 +109,6 @@ as possible with the following exceptions:
     *   `span!`: passes extra arguments to the predicate.
     *   `break`: passes extra arguments to the predicate.
     *   `break!`: passes extra arguments to the predicate.
-    *   `delete-duplicates`: only removes adjacent duplicates (FIXME).
-    *   `delete-duplicates!`: only removes adjacent duplicates (FIXME).
     *   `traverse`: new function, creates for-loop iterator.
 
 

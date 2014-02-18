@@ -630,6 +630,16 @@ local function append_reverse( rhd, tl )
 end
 
 
+local function append_reverse_( rhd, tl )
+  while rhd ~= nil do
+    local p = cdr( rhd )
+    set_cdr( rhd, tl )
+    rhd, tl = p, rhd
+  end
+  return tl
+end
+
+
 local function append_map1( f, lst )
   local newlist, lp
   while lst ~= nil do
@@ -1506,21 +1516,25 @@ local function delete_( x, lst, eq )
 end
 
 
+local function delete_duplicates_( lst ,eq )
+  local newlist = lst
+  while lst ~= nil do
+    local lp = delete_( car( lst ), cdr( lst ), eq )
+    set_cdr( lst, lp )
+    lst = lp
+  end
+  return newlist
+end
+
+
 local function delete_duplicates( lst, eq )
-  local newlist, last, lastc
+  local newlist
   if lst ~= nil then
-    local c = car( lst )
-    eq, newlist = eq or equal, cons( c, nil )
-    last, lastc, lst = newlist, c, cdr( lst )
-    while lst ~= nil do
-      c = car( lst )
-      if not eq( lastc, c ) then
-        local cell = cons( c, nil )
-        set_cdr( last, cell )
-        last, lastc = cell, c
-      end
-      lst = cdr( lst )
-    end
+    local hd = car( lst )
+    newlist = cons( hd, nil )
+    lst = delete( hd, cdr( lst ), eq )
+    set_cdr( newlist, lst )
+    delete_duplicates_( lst, eq )
   end
   return newlist
 end
@@ -1617,7 +1631,7 @@ return {
   reverse = reverse,
   reverse_ = reverse_,
   append_reverse = append_reverse,
-  append_reverse_ = append_reverse, -- TODO
+  append_reverse_ = append_reverse_,
   append_map = append_map,
   append_map_ = append_map, -- TODO
   zip = zip,
@@ -1666,7 +1680,7 @@ return {
   delete = delete,
   delete_ = delete_,
   delete_duplicates = delete_duplicates,
-  delete_duplicates_ = delete_duplicates, -- TODO
+  delete_duplicates_ = delete_duplicates_,
   -- iterating
   traverse = traverse,
 }
