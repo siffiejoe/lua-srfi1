@@ -138,14 +138,14 @@ end
 
 
 local function copy( lst )
-  local newlist, last
+  local newlist, p
   if lst ~= nil then
     newlist = cons( car( lst ), nil )
-    last, lst = newlist, cdr( lst )
+    p, lst = newlist, cdr( lst )
     while lst ~= nil do
       local c = cons( car( lst ), nil )
-      set_cdr( last, c )
-      last, lst = c, cdr( lst )
+      set_cdr( p, c )
+      p, lst = c, cdr( lst )
     end
   end
   return newlist
@@ -156,11 +156,11 @@ local function circular( ... )
   local n, c = select( '#', ... ), nil
   if n > 0 then
     c = cons( select( n, ... ), nil )
-    local last = c
+    local lp = c
     for i = n-1, 1, -1 do
       c = cons( select( i, ... ), c )
     end
-    set_cdr( last, c )
+    set_cdr( lp, c )
   end
   return c
 end
@@ -358,11 +358,11 @@ local function split_at( lst, n )
     return nil, lst
   else
     local front = cons( car( lst ), nil )
-    local last, rest, i = front, cdr( lst ), 1
+    local p, rest, i = front, cdr( lst ), 1
     while rest ~= nil and i < n do
-      local newlast = cons( car( rest ), nil )
-      set_cdr( last, newlast )
-      last, rest, i = newlast, cdr( rest ), i+1
+      local c = cons( car( rest ), nil )
+      set_cdr( p, c )
+      p, rest, i = c, cdr( rest ), i+1
     end
     return front, rest
   end
@@ -373,11 +373,11 @@ local function split_at_( lst, n )
   if lst == nil or n == 0 then
     return nil, lst
   else
-    local last, p = lst, cdr( lst )
+    local lp, p = lst, cdr( lst )
     while p ~= nil and n > 1 do
-      last, p, n = p, cdr( p ), n - 1
+      lp, p, n = p, cdr( p ), n - 1
     end
-    set_cdr( last, nil )
+    set_cdr( lp, nil )
     return lst, p
   end
 end
@@ -411,14 +411,14 @@ end
 
 
 local function drop_right( lst, n )
-  local front, newlist, last = drop( lst, n ), nil, nil
+  local front, newlist, p = drop( lst, n ), nil, nil
   if front ~= nil then
     newlist = cons( car( lst, nil ) )
-    last, front, lst = newlist, cdr( front ), cdr( lst )
+    p, front, lst = newlist, cdr( front ), cdr( lst )
     while front ~= nil do
       local c = cons( car( lst ), nil )
-      set_cdr( last, c )
-      last, front, lst = c, cdr( front ), cdr( lst )
+      set_cdr( p, c )
+      p, front, lst = c, cdr( front ), cdr( lst )
     end
   end
   return newlist
@@ -491,47 +491,47 @@ end
 
 
 local function append( ... )
-  local n, nlst, last = select( '#', ... ), nil, nil
+  local n, newlist, lp = select( '#', ... ), nil, nil
   for i = 1, n-1 do
     local lst = select( i, ... )
     while lst ~= nil do
       local c = cons( car( lst ), nil )
-      if last then
-        set_cdr( last, c )
+      if lp ~= nil then
+        set_cdr( lp, c )
       else
-        nlst = c
+        newlist = c
       end
-      last, lst = c, cdr( lst )
+      lp, lst = c, cdr( lst )
     end
   end
   if n > 0 then
-    if last then
-      set_cdr( last, (select( n, ... )) )
+    if lp ~= nil then
+      set_cdr( lp, (select( n, ... )) )
     else
-      nlst = select( n, ... )
+      newlist = select( n, ... )
     end
   end
-  return nlst
+  return newlist
 end
 
 
 local function append_( ... )
   local lst, n = (...), select( '#', ... )
   if n > 0 then
-    local p
+    local lp
     if lst ~= nil then
-      p = take_right( lst, 1 )
+      lp = take_right( lst, 1 )
     end
     for i = 2, n do
       local li = select( i, ... )
       if li ~= nil then
-        if p == nil then
+        if lp == nil then
           lst = li
         else
-          set_cdr( p, li )
+          set_cdr( lp, li )
         end
         if i ~= n then
-          p = take_right( li, 1 )
+          lp = take_right( li, 1 )
         end
       end
     end
@@ -541,29 +541,60 @@ end
 
 
 local function concatenate( llst )
-  local nlst, last
+  local newlist, lp
   if llst ~= nil then
     local front = cdr( llst )
     while front ~= nil do
       local lst = car( llst )
       while lst ~= nil do
         local c = cons( car( lst ), nil )
-        if last then
-          set_cdr( last, c )
+        if lp ~= nil then
+          set_cdr( lp, c )
         else
-          nlst = c
+          newlist = c
         end
-        last, lst = c, cdr( lst )
+        lp, lst = c, cdr( lst )
       end
       llst, front = front, cdr( front )
     end
-    if last then
-      set_cdr( last, car( llst ) )
+    if lp ~= nil then
+      set_cdr( lp, car( llst ) )
     else
-      nlst = car( llst )
+      newlist = car( llst )
     end
   end
-  return nlst
+  return newlist
+end
+
+
+local function concatenate_( llst )
+  if llst ~= nil then
+    local lst = car( llst )
+    llst = cdr( llst )
+    if llst ~= nil then
+      local lp, front = take_right( lst, 1 ), cdr( llst )
+      while front ~= nil do
+        local li = car( llst )
+        if li ~= nil then
+          if lp == nil then
+            lst = li
+          else
+            set_cdr( lp, li )
+          end
+          lp = take_right( li, 1 )
+        end
+        front, llst = cdr( front ), front
+      end
+      if lp == nil then
+        lst = car( llst )
+      else
+        set_cdr( lp, car( llst ) )
+      end
+    end
+    return lst
+  else
+    return nil
+  end
 end
 
 
@@ -600,24 +631,24 @@ end
 
 
 local function append_map1( f, lst )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil do
     local res, tl = f( car( lst ) ), cdr( lst )
     if tl == nil then
-      if last then
-        set_cdr( last, res )
+      if lp ~= nil then
+        set_cdr( lp, res )
       else
         newlist = res
       end
     else
       while res ~= nil do
         local c = cons( car( res ), nil )
-        if last then
-          set_cdr( last, c )
+        if lp ~= nil then
+          set_cdr( lp, c )
         else
           newlist = c
         end
-        last, res = c, cdr( res )
+        lp, res = c, cdr( res )
       end
     end
     lst = tl
@@ -630,7 +661,7 @@ local function append_map( f, ... )
   if n <= 1 then
     return append_map1( f, (...) )
   else
-    local cars, cdrs, newlist, last = { ... }, { ... }
+    local cars, cdrs, newlist, lp = { ... }, { ... }
     local last_loop = false
     while true do
       for i = 1, n do
@@ -642,20 +673,20 @@ local function append_map( f, ... )
       end
       local res = f( unpack( cars, 1, n ) )
       if last_loop then
-        if last then
-          set_cdr( last, res )
+        if lp ~= nil then
+          set_cdr( lp, res )
         else
           newlist = res
         end
       else
         while res ~= nil do
           local c = cons( car( res ), nil )
-          if last then
-            set_cdr( last, c )
+          if lp ~= nil then
+            set_cdr( lp, c )
           else
             newlist = c
           end
-          last, res = c, cdr( res )
+          lp, res = c, cdr( res )
         end
       end
     end
@@ -666,7 +697,7 @@ end
 local function zip( ... )
   local n = select( '#', ... )
   if n > 0 then
-    local lsts, res, last = { ... }
+    local lsts, res, lp = { ... }
     while true do
       local el
       for i = n, 1, -1 do
@@ -676,12 +707,12 @@ local function zip( ... )
         el = cons( car( l ), el )
       end
       local c = cons( el, nil )
-      if last then
-        set_cdr( last, c )
+      if lp ~= nil then
+        set_cdr( lp, c )
       else
         res = c
       end
-      last = c
+      lp = c
     end
   end
   return nil
@@ -689,14 +720,14 @@ end
 
 
 local function map1( f, lst )
-  local newlist, last
+  local newlist, lp
   if lst ~= nil then
     newlist = cons( f( car( lst ) ), nil )
-    last, lst = newlist, cdr( lst )
+    lp, lst = newlist, cdr( lst )
     while lst ~= nil do
       local c = cons( f( car( lst ) ), nil )
-      set_cdr( last, c )
-      last, lst = c, cdr( lst )
+      set_cdr( lp, c )
+      lp, lst = c, cdr( lst )
     end
   end
   return newlist
@@ -725,54 +756,54 @@ local function lselect( lst, n, msg )
 end
 
 local function unzip2( lst )
-  local res1, res2, last1, last2
+  local res1, res2, lp1, lp2
   while lst ~= nil do
     local e1, e2 = lselect( car( lst ), 2,
       "'list.unzip2' requires at least two elements each" )
-    if last1 then
-      set_cdr( last1, e1 )
-      set_cdr( last2, e2 )
+    if lp1 ~= nil then
+      set_cdr( lp1, e1 )
+      set_cdr( lp2, e2 )
     else
       res1, res2 = e1, e2
     end
-    last1, last2 = e1, e2
+    lp1, lp2 = e1, e2
     lst = cdr( lst )
   end
   return res1, res2
 end
 
 local function unzip3( lst )
-  local res1, res2, res3, last1, last2, last3
+  local res1, res2, res3, lp1, lp2, lp3
   while lst ~= nil do
     local e1, e2, e3 = lselect( car( lst ), 3,
       "'list.unzip3' requires at least three elements each" )
-    if last1 then
-      set_cdr( last1, e1 )
-      set_cdr( last2, e2 )
-      set_cdr( last3, e3 )
+    if lp1 ~= nil then
+      set_cdr( lp1, e1 )
+      set_cdr( lp2, e2 )
+      set_cdr( lp3, e3 )
     else
       res1, res2, res3 = e1, e2, e3
     end
-    last1, last2, last3 = e1, e2, e3
+    lp1, lp2, lp3 = e1, e2, e3
     lst = cdr( lst )
   end
   return res1, res2, res3
 end
 
 local function unzip4( lst )
-  local res1, res2, res3, res4, last1, last2, last3, last4
+  local res1, res2, res3, res4, lp1, lp2, lp3, lp4
   while lst ~= nil do
     local e1, e2, e3, e4 = lselect( car( lst ), 4,
       "'list.unzip4' requires at least four elements each" )
-    if last1 then
-      set_cdr( last1, e1 )
-      set_cdr( last2, e2 )
-      set_cdr( last3, e3 )
-      set_cdr( last4, e4 )
+    if lp1 ~= nil then
+      set_cdr( lp1, e1 )
+      set_cdr( lp2, e2 )
+      set_cdr( lp3, e3 )
+      set_cdr( lp4, e4 )
     else
       res1, res2, res3, res4 = e1, e2, e3, e4
     end
-    last1, last2, last3, last4 = e1, e2, e3, e4
+    lp1, lp2, lp3, lp4 = e1, e2, e3, e4
     lst = cdr( lst )
   end
   return res1, res2, res3, res4
@@ -815,20 +846,20 @@ local function map( f, ... )
   if n <= 1 then
     return map1( f, (...) )
   else
-    local cars, cdrs, nlst, last = { ... }, { ... }
+    local cars, cdrs, newlist, lp = { ... }, { ... }
     while true do
       for i = 1, n do
         local lst = cdrs[ i ]
-        if lst == nil then return nlst end
+        if lst == nil then return newlist end
         cars[ i ], cdrs[ i ] = car( lst ), cdr( lst )
       end
       local c = cons( f( unpack( cars, 1, n ) ), nil )
-      if last then
-        set_cdr( last, c )
+      if lp ~= nil then
+        set_cdr( lp, c )
       else
-        nlst = c
+        newlist = c
       end
-      last = c
+      lp = c
     end
   end
 end
@@ -849,13 +880,13 @@ local function map_( f, ... )
   if n <= 1 then
     return map_1( f, (...) )
   else
-    local cars, cdrs, lst, prev = { ... }, { ... }, (...), nil
+    local cars, cdrs, lst, lp = { ... }, { ... }, (...), nil
     while true do
       for i = 2, n do
         local li = cdrs[ i ]
         if li == nil then
-          if prev then
-            set_cdr( prev, nil )
+          if lp ~= nil then
+            set_cdr( lp, nil )
           end
           return lst
         end
@@ -863,8 +894,8 @@ local function map_( f, ... )
       end
       local li = cdrs[ 1 ]
       if li == nil then return lst end
-      cars[ 1 ], cdrs[ 1 ], prev = car( li ), cdr( li ), li
-      set_car( prev, f( unpack( cars, 1, n ) ) )
+      cars[ 1 ], cdrs[ 1 ], lp = car( li ), cdr( li ), li
+      set_car( lp, f( unpack( cars, 1, n ) ) )
     end
   end
 end
@@ -922,17 +953,17 @@ end
 
 
 local function filter_map1( f, lst )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil do
     local v = f( car( lst ) )
     if v ~= nil then
       local c = cons( v, nil )
-      if last ~= nil then
-        set_cdr( last, c )
+      if lp ~= nil then
+        set_cdr( lp, c )
       else
         newlist = c
       end
-      last = c
+      lp = c
     end
     lst = cdr( lst )
   end
@@ -944,22 +975,22 @@ local function filter_map( f, ... )
   if n <= 1 then
     return filter_map1( f, (...) )
   else
-    local cars, cdrs, nlst, last = { ... }, { ... }
+    local cars, cdrs, newlist, lp = { ... }, { ... }
     while true do
       for i = 1, n do
         local lst = cdrs[ i ]
-        if lst == nil then return nlst end
+        if lst == nil then return newlist end
         cars[ i ], cdrs[ i ] = car( lst ), cdr( lst )
       end
       local v = f( unpack( cars, 1, n ) )
       if v ~= nil then
         local c = cons( v, nil )
-        if last then
-          set_cdr( last, c )
+        if lp ~= nil then
+          set_cdr( lp, c )
         else
-          nlst = c
+          newlist = c
         end
-        last = c
+        lp = c
       end
     end
   end
@@ -1108,15 +1139,15 @@ local function unfold( p, f, g, seed, tail_gen, ... )
     return lst
   else
     local lst = cons( f( seed ), nil )
-    local last = lst
+    local lp = lst
     seed = g( seed )
     while not p( seed ) do
       local c = cons( f( seed ), nil )
-      set_cdr( last, c )
-      last, seed = c, g( seed )
+      set_cdr( lp, c )
+      lp, seed = c, g( seed )
     end
     if tail_gen then
-      set_cdr( last, tail_gen( seed, ... ) )
+      set_cdr( lp, tail_gen( seed, ... ) )
     end
     return lst
   end
@@ -1132,19 +1163,19 @@ end
 
 
 local function filter( p, lst, ... )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil and not p( car( lst ), ... ) do
     lst = cdr( lst )
   end
   if lst ~= nil then
     newlist, lst = cons( car( lst ), nil ), cdr( lst )
-    last = newlist
+    lp = newlist
     while lst ~= nil do
       local hd = car( lst )
       if p( hd, ... ) then
         local c = cons( hd, nil )
-        set_cdr( last, c )
-        last = c
+        set_cdr( lp, c )
+        lp = c
       end
       lst = cdr( lst )
     end
@@ -1158,13 +1189,13 @@ local function filter_( p, lst, ... )
     lst = cdr( lst )
   end
   if lst ~= nil then
-    local prev, li = lst, cdr( lst )
+    local lp, li = lst, cdr( lst )
     while li ~= nil do
       if not p( car( li ), ... ) then
         li = cdr( li )
-        set_cdr( prev, li )
+        set_cdr( lp, li )
       else
-        prev, li = li, cdr( li )
+        lp, li = li, cdr( li )
       end
     end
   end
@@ -1218,10 +1249,10 @@ local function partition_( p, lst, ... )
     end
     lst = cdr( lst )
   end
-  if lastyes then
+  if lastyes ~= nil then
     set_cdr( lastyes, nil )
   end
-  if lastno then
+  if lastno ~= nil then
     set_cdr( lastno, nil )
   end
   return yes, no
@@ -1229,19 +1260,19 @@ end
 
 
 local function remove( p, lst, ... )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil and p( car( lst ), ... ) do
     lst = cdr( lst )
   end
   if lst ~= nil then
     newlist, lst = cons( car( lst ), nil ), cdr( lst )
-    last = newlist
+    lp = newlist
     while lst ~= nil do
       local hd = car( lst )
       if not p( hd, ... ) then
         local c = cons( hd, nil )
-        set_cdr( last, c )
-        last = c
+        set_cdr( lp, c )
+        lp = c
       end
       lst = cdr( lst )
     end
@@ -1255,13 +1286,13 @@ local function remove_( p, lst, ... )
     lst = cdr( lst )
   end
   if lst ~= nil then
-    local prev, li = lst, cdr( lst )
+    local lp, li = lst, cdr( lst )
     while li ~= nil do
       if p( car( li ), ... ) then
         li = cdr( li )
-        set_cdr( prev, li )
+        set_cdr( lp, li )
       else
-        prev, li = li, cdr( li )
+        lp, li = li, cdr( li )
       end
     end
   end
@@ -1382,29 +1413,29 @@ end
 
 
 local function span( p, lst, ... )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil do
     local hd = car( lst )
     if not p( hd, ... ) then break end
     local c = cons( hd, nil )
-    if last then
-      set_cdr( last, c )
+    if lp ~= nil then
+      set_cdr( lp, c )
     else
       newlist = c
     end
-    last, lst = c, cdr( lst )
+    lp, lst = c, cdr( lst )
   end
   return newlist, lst
 end
 
 
 local function span_( p, lst, ... )
-  local li, tl = lst, nil
+  local li, lp = lst, nil
   while li ~= nil and p( car( li ), ... ) do
-    tl, li = li, cdr( li )
+    lp, li = li, cdr( li )
   end
-  if tl ~= nil then
-    set_cdr( tl, nil )
+  if lp ~= nil then
+    set_cdr( lp, nil )
   end
   if lst == li then
     lst = nil
@@ -1414,29 +1445,29 @@ end
 
 
 local function lbreak( p, lst, ... )
-  local newlist, last
+  local newlist, lp
   while lst ~= nil do
     local hd = car( lst )
     if p( hd, ... ) then break end
     local c = cons( hd, nil )
-    if last then
-      set_cdr( last, c )
+    if lp ~= nil then
+      set_cdr( lp, c )
     else
       newlist = c
     end
-    last, lst = c, cdr( lst )
+    lp, lst = c, cdr( lst )
   end
   return newlist, lst
 end
 
 
 local function lbreak_( p, lst, ... )
-  local li, tl = lst, nil
+  local li, lp = lst, nil
   while li ~= nil and not p( car( li ), ... ) do
-    tl, li = li, cdr( li )
+    lp, li = li, cdr( li )
   end
-  if tl ~= nil then
-    set_cdr( tl, nil )
+  if lp ~= nil then
+    set_cdr( lp, nil )
   end
   if lst == li then
     lst = nil
@@ -1466,6 +1497,12 @@ end
 local function delete( x, lst, eq )
   eq = eq or equal
   return remove( eq, lst, x )
+end
+
+
+local function delete_( x, lst, eq )
+  eq = eq or equal
+  return remove_( eq, lst, x )
 end
 
 
@@ -1576,7 +1613,7 @@ return {
   append = append,
   append_ = append_,
   concatenate = concatenate,
-  concatenate_ = concatenate, -- TODO
+  concatenate_ = concatenate_,
   reverse = reverse,
   reverse_ = reverse_,
   append_reverse = append_reverse,
@@ -1627,7 +1664,7 @@ return {
   drop_while = drop_while,
   -- deleting
   delete = delete,
-  delete_ = delete, -- TODO
+  delete_ = delete_,
   delete_duplicates = delete_duplicates,
   delete_duplicates_ = delete_duplicates, -- TODO
   -- iterating
