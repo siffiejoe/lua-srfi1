@@ -851,11 +851,8 @@ local function map_( f, ... )
   else
     local cars, cdrs, lst, prev = { ... }, { ... }, (...), nil
     while true do
-      local li = cdrs[ 1 ]
-      if li == nil then return lst end
-      cars[ 1 ], cdrs[ 1 ], prev = car( li ), cdr( li ), li
       for i = 2, n do
-        li = cdrs[ i ]
+        local li = cdrs[ i ]
         if li == nil then
           if prev then
             set_cdr( prev, nil )
@@ -864,9 +861,11 @@ local function map_( f, ... )
         end
         cars[ i ], cdrs[ i ] = car( li ), cdr( li )
       end
+      local li = cdrs[ 1 ]
+      if li == nil then return lst end
+      cars[ 1 ], cdrs[ 1 ], prev = car( li ), cdr( li ), li
       set_car( prev, f( unpack( cars, 1, n ) ) )
     end
-    return lst
   end
 end
 
