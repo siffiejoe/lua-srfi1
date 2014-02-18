@@ -25,9 +25,6 @@ as possible with the following exceptions:
 *   The whole "association lists" and "set operations on lists"
     part of [SRFI-1][1] is missing. You are better off using Lua
     tables for that.
-*   Currently there are no "linear update" variants (the functions
-    which have an exclamation mark in their name). Maybe those
-    functions will be added later ...
 *   Some functions are named slightly differently, e.g. characters
     which are invalid in Lua identifiers are replaced by an
     underscore, or superfluous prefixes are removed from the function
@@ -35,20 +32,15 @@ as possible with the following exceptions:
 *   The following functions are missing:
     *   `cons*`
     *   `pair?`, `not-pair?`, `proper-list?`, `dotted-list?` 
-    *   `take!`, `drop-right!`, `split-at!`
-    *   `append!`, `concatenate!`, `reverse!`, `append-reverse!`,
-        `unzip5`
-    *   `append-map!`, `map!`
-    *   `filter!`, `partition!`, `remove!`
-    *   `memq`, `memv`, `span!`, `break!`
-    *   `delete!`, `delete-duplicates!`
+    *   `unzip5`
+    *   `memq`, `memv`
     *   `assoc`, `assq`, `assv`, `alist-cons`, `alist-copy`,
         `alist-delete`, `alist-delete!`
     *   `lset<=`, `lset=`, `lset-adjoin`, `lset-union`, `lset-union!`,
         `lset-intersection`, `lset-intersection!`, `lset-difference`,
         `lset-difference!`, `lset-xor`, `lset-xor!`,
         `lset-diff+intersection`, `lset-diff+intersection!`
-*   The following functions are renamed:
+*   The following functions have been renamed:
     *   `set-car!` => `set_car`
     *   `set-cdr!` => `set_cdr`
     *   `make-list` => `make`
@@ -60,12 +52,19 @@ as possible with the following exceptions:
     *   `list=` => `is_equal`
     *   `list-ref` => `ref`
     *   `car+cdr` => `car_cdr`
+    *   `take!` => `take_`
     *   `take-right` => `take_right`
     *   `drop-right` => `drop_right`
+    *   `drop-right!` => `drop_right_`
     *   `split-at` => `split_at`
+    *   `split-at!` => `split_at_`
     *   `last-pair` => `last_pair`
     *   `length+` => `length_`
+    *   `append!` => `append_`
+    *   `concatenate!` => `concatenate_`
+    *   `reverse!` => `reverse_`
     *   `append-reverse` => `append_reverse`
+    *   `append-reverse!` => `append_reverse_`
     *   `for-each` => `for_each`
     *   `pair-fold` => `pair_fold`
     *   `fold-right` => `fold_right`
@@ -73,29 +72,45 @@ as possible with the following exceptions:
     *   `pair-fold-right` => `pair_fold_right`
     *   `reduce-right` => `reduce_right`
     *   `append-map` => `append_map`
+    *   `append-map!` => `append_map_`
+    *   `map!` => `map_`
     *   `pair-for-each` => `pair_for_each`
     *   `map-in-order` => `map_in_order`
+    *   `filter!` => `filter_`
+    *   `partition!` => `partition_`
+    *   `remove!` => `remove_`
     *   `find-tail` => `find_tail`
     *   `list-index` => `index`
     *   `take-while` => `take_while`
+    *   `take-while!` => `take_while_`
     *   `drop-while` => `drop_while`
+    *   `span!` => `span_`
     *   `break` => `lbreak`
+    *   `break!` => `lbreak_`
+    *   `delete!` => `delete_`
     *   `delete-duplicates` => `delete_duplicates`
+    *   `delete-duplicates!` => `delete_duplicates_`
 *   The following functions have different behavior:
     *   `list=`: `is_equal` takes an optional third parameter used as
         a comparator function for the list elements.
-    *   `unfold`: passes any extra arguments to the `tail-gen`
-        function.
+    *   `unfold`: passes extra arguments to the `tail-gen` function.
     *   `filter`: passes extra arguments to the predicate.
+    *   `filter!`: passes extra arguments to the predicate.
     *   `partition`: passes extra arguments to the predicate.
+    *   `partition!`: passes extra arguments to the predicate.
     *   `remove`: passes extra arguments to the predicate.
+    *   `remove!`: passes extra arguments to the predicate.
     *   `find`: passes extra arguments to the predicate.
     *   `find-tail`: passes extra arguments to the predicate.
     *   `take-while`: passes extra arguments to the predicate.
+    *   `take-while!`: passes extra arguments to the predicate.
     *   `drop-while`: passes extra arguments to the predicate.
     *   `span`: passes extra arguments to the predicate.
+    *   `span!`: passes extra arguments to the predicate.
     *   `break`: passes extra arguments to the predicate.
+    *   `break!`: passes extra arguments to the predicate.
     *   `delete-duplicates`: only removes adjacent duplicates (FIXME).
+    *   `delete-duplicates!`: only removes adjacent duplicates (FIXME).
     *   `traverse`: new function, creates for-loop iterator.
 
 

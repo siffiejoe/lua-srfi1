@@ -1347,10 +1347,13 @@ return {
   tenth = tenth,
   car_cdr = car_cdr,
   split_at = split_at,
+  split_at_ = split_at, -- TODO
   take = take,
+  take_ = take, -- TODO
   drop = drop,
   take_right = take_right,
   drop_right = drop_right,
+  drop_right_ = drop_right, -- TODO
   ref = ref,
   last_pair = last_pair,
   last = last,
@@ -1358,10 +1361,15 @@ return {
   length = length,
   length_ = length_,
   append = append,
+  append_ = append, -- TODO
   concatenate = concatenate,
+  concatenate_ = concatenate, -- TODO
   reverse = reverse,
+  reverse_ = reverse, -- TODO
   append_reverse = append_reverse,
+  append_reverse_ = append_reverse, -- TODO
   append_map = append_map,
+  append_map_ = append_map, -- TODO
   zip = zip,
   unzip1 = unzip1,
   unzip2 = unzip2,
@@ -1370,6 +1378,7 @@ return {
   count = count,
   -- fold, unfold & map
   map = map,
+  map_ = map, -- TODO
   for_each = for_each,
   pair_for_each = pair_for_each,
   map_in_order = map,
@@ -1384,8 +1393,11 @@ return {
   unfold_right = unfold_right,
   -- filtering & partitioning
   filter = filter,
+  filter_ = filter, -- TODO
   partition = partition,
+  partition_ = partition, -- TODO
   remove = remove,
+  remove_ = remove, -- TODO
   -- searching
   find_tail = find_tail,
   member = member,
@@ -1394,12 +1406,17 @@ return {
   every = every,
   index = index,
   span = span,
+  span_ = span, -- TODO
   lbreak = lbreak, -- break is a reserved identifier in Lua!
+  lbreak_ = lbreak, -- TODO
   take_while = take_while,
+  take_while_ = take_while, -- TODO
   drop_while = drop_while,
   -- deleting
   delete = delete,
+  delete_ = delete, -- TODO
   delete_duplicates = delete_duplicates,
+  delete_duplicates_ = delete_duplicates, -- TODO
   -- iterating
   traverse = traverse,
 }

@@ -73,10 +73,14 @@ local function all( p )
   end
 end
 local all_even = all( even )
+local function double( x ) return 2 * x end
 local function inc( i ) return i + 1 end
 local function dec( i ) return i - 1 end
 local function sqr( x ) return x * x end
 local function add2( a, b ) return a + b end
+local function posneg( v ) return L.list( v, -v ) end
+local function lid( v ) return L.list( v ) end
+local function pairs2( v, w ) return L.list( v, w ) end
 
 
 -- tests
@@ -320,6 +324,30 @@ do -- split_at
   assert( L.length( l11 ) == LARGE-i )
 end
 
+do -- split_at_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l2, l3 = L.split_at_( l1a, 2 )
+  assert( L.is_equal( l2, L.list( 1, 2 ) ) )
+  assert( L.is_equal( l3, L.list( 3, 4 ) ) )
+  local l4, l5 = L.split_at_( l1b, 0 )
+  assert( L.is_equal( l4, nil ) )
+  assert( L.is_equal( l5, l1b ) )
+  assert( l5 == l1b )
+  local l6, l7 = L.split_at_( l1c, 5 )
+  assert( L.is_equal( l6, l1c ) )
+  assert( l7 == nil )
+  local l8, l9 = L.split_at_( nil, 2 )
+  assert( l8 == nil )
+  assert( l9 == nil )
+  local i = math.floor( LARGE/2 )
+  local l10, l11 = L.split_at_( L.copy( large_lst ), i )
+  assert( L.length( l10 ) == i )
+  assert( L.last( l10 ) == i )
+  assert( L.length( l11 ) == LARGE-i )
+end
+
 do -- take
   local l1 = L.list( 1, 2, 3, 4 )
   assert( L.is_equal( L.take( l1, 1 ), L.list( 1 ) ) )
@@ -329,6 +357,20 @@ do -- take
   assert( L.is_equal( L.take( l1, 6 ), l1 ) )
   assert( L.take( l1, 4 ) ~= l1 )
   local l2 = L.take( large_lst, 3 )
+  assert( L.is_equal( l2, L.list( 1, 2, 3 ) ) )
+end
+
+do -- take_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  assert( L.is_equal( L.take_( l1a, 1 ), L.list( 1 ) ) )
+  assert( L.take_( l1b, 0 ) == nil )
+  assert( L.take_( nil, 2 ) == nil )
+  assert( L.is_equal( L.take_( l1c, 4 ), l1c ) )
+  assert( L.is_equal( L.take_( l1d, 6 ), l1d ) )
+  local l2 = L.take_( L.copy( large_lst ), 3 )
   assert( L.is_equal( l2, L.list( 1, 2, 3 ) ) )
 end
 
@@ -366,6 +408,20 @@ do -- drop_right
   assert( L.drop_right( l1, 4 ) == nil )
   assert( L.drop_right( l1, 6 ) == nil )
   local l2 = L.drop_right( large_lst, LARGE-3 )
+  assert( L.is_equal( l2, L.list( 1, 2, 3 ) ) )
+end
+
+do -- drop_right_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  assert( L.is_equal( L.drop_right_( l1a, 2 ), L.list( 1, 2 ) ) )
+  assert( L.is_equal( L.drop_right_( l1b, 0 ), l1b ) )
+  assert( L.drop_right_( nil, 2 ) == nil )
+  assert( L.drop_right_( l1c, 4 ) == nil )
+  assert( L.drop_right_( l1d, 6 ) == nil )
+  local l2 = L.drop_right_( L.copy( large_lst ), LARGE-3 )
   assert( L.is_equal( l2, L.list( 1, 2, 3 ) ) )
 end
 
@@ -439,6 +495,27 @@ do -- append
   assert( L.last( L.append( nil, large_lst ) ) == LARGE )
 end
 
+do -- append_
+  local l1a = L.list( 1, 2 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
+  local l2 = L.list( 3, 4 )
+  local l3 = L.list( 5, 6 )
+  local l4 = L.list( 1, 2, 3, 4 )
+  local l5 = L.list( 1, 2, 3, 4, 5, 6 )
+  assert( L.is_equal( L.append_( l1a, l2 ), l4 ) )
+  assert( L.is_equal( L.append_( l1b, nil ), l1b ) )
+  assert( L.append_( nil, l1c ) == l1c )
+  assert( L.drop( L.append_( l1d, l2 ), L.length( l1e ) ) == l2 )
+  assert( L.append_() == nil )
+  assert( L.is_equal( L.append_( l1e, l2, l3 ), l5 ) )
+  local l6 = L.append_( L.copy( large_lst ), l5 )
+  assert( L.last( l6 ) == 6 )
+  assert( L.last( L.append_( nil, large_lst ) ) == LARGE )
+end
+
 do -- concatenate
   local l1 = L.list( 1, 2 )
   local l2 = L.list( 3, 4 )
@@ -457,11 +534,42 @@ do -- concatenate
   assert( L.last( L.concatenate( L.list( nil, large_lst ) ) ) == LARGE )
 end
 
+do -- concatenate_
+  local l1a = L.list( 1, 2 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
+  local l1f = L.copy( l1a )
+  local l2 = L.list( 3, 4 )
+  local l3 = L.list( 5, 6 )
+  local l4 = L.list( 1, 2, 3, 4, 5, 6 )
+  assert( L.is_equal( L.concatenate_( L.list( l1a, l2, l3 ) ), l4 ) )
+  assert( L.is_equal( L.concatenate_( L.list( l1b, nil ) ), l1b ) )
+  assert( L.concatenate_( L.list( l1c ) ) == l1c )
+  assert( L.concatenate_( L.list( nil, l1d ) ) == l1d )
+  local l5 = L.drop( L.concatenate_( L.list( l1e, l2 ) ), L.length( l1f ) )
+  assert( l5 == l2 )
+  assert( L.concatenate_( nil ) == nil )
+  local l6 = L.concatenate_( L.list( L.copy( large_lst ), l4 ) )
+  assert( L.last( l6 ) == 6 )
+  assert( L.last( L.concatenate_( L.list( nil, large_lst ) ) ) == LARGE )
+end
+
 do -- reverse
   local l1 = L.reverse( L.list( 1, 2, 3, 4 ) )
   assert( L.is_equal( l1, L.list( 4, 3, 2, 1 ) ) )
   assert( L.reverse( nil ) == nil )
   local l2 = L.reverse( large_lst )
+  assert( L.car( l2 ) == LARGE )
+  assert( L.last( l2 ) == 1 )
+end
+
+do -- reverse_
+  local l1 = L.reverse_( L.list( 1, 2, 3, 4 ) )
+  assert( L.is_equal( l1, L.list( 4, 3, 2, 1 ) ) )
+  assert( L.reverse_( nil ) == nil )
+  local l2 = L.reverse_( L.copy( large_lst ) )
   assert( L.car( l2 ) == LARGE )
   assert( L.last( l2 ) == 1 )
 end
@@ -480,6 +588,25 @@ do -- append_reverse
   assert( L.last( L.append_reverse( nil, large_lst ) ) == LARGE )
 end
 
+do -- append_reverse_
+  local l1a = L.list( 1, 2 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
+  local l1f = L.copy( l1a )
+  local l2 = L.list( 3, 4 )
+  local l3 = L.list( 2, 1, 3, 4 )
+  assert( L.is_equal( L.append_reverse_( l1a, l2 ), l3 ) )
+  assert( L.is_equal( L.append_reverse_( l1b, nil ), L.reverse( l1c ) ) )
+  assert( L.is_equal( L.append_reverse_( nil, l1d ), l1d ) )
+  assert( L.append_reverse_( nil, l1d ) == l1d )
+  assert( L.drop( L.append_reverse_( l1e, l2 ), L.length( l1f ) ) == l2 )
+  local l4 = L.append_reverse_( L.copy( large_lst ), l3 )
+  assert( L.last( l4 ) == 4 )
+  assert( L.last( L.append_reverse_( nil, large_lst ) ) == LARGE )
+end
+
 do -- append_map
   local l1 = L.list( 1, 2, 3, 4 )
   local l2 = L.list( 2, 4, 6, 8, 10 )
@@ -488,15 +615,28 @@ do -- append_map
   local l5 = L.list( 1 )
   local l6 = L.list( 1, -1 )
   local l7 = L.list( 1, 2 )
-  local function posneg( v ) return L.list( v, -v ) end
-  local function lid( v ) return L.list( v ) end
-  local function pairs2( v, w ) return L.list( v, w ) end
   assert( L.is_equal( L.append_map( posneg, l1 ), l3 ) )
   assert( L.append_map( posneg, nil ) == nil )
   assert( L.is_equal( L.append_map( posneg, l5 ), l6 ) )
   assert( L.is_equal( L.append_map( pairs2, l1, l2 ), l4 ) )
   assert( L.is_equal( L.append_map( pairs2, l5, l2 ), l7 ) )
   assert( L.is_equal( L.append_map( lid, large_lst ), large_lst ) )
+end
+
+do -- append_map_
+  local l1 = L.list( 1, 2, 3, 4 )
+  local l2 = L.list( 2, 4, 6, 8, 10 )
+  local l3 = L.list( 1, -1, 2, -2, 3, -3, 4, -4 )
+  local l4 = L.list( 1, 2, 2, 4, 3, 6, 4, 8 )
+  local l5 = L.list( 1 )
+  local l6 = L.list( 1, -1 )
+  local l7 = L.list( 1, 2 )
+  assert( L.is_equal( L.append_map_( posneg, l1 ), l3 ) )
+  assert( L.append_map_( posneg, nil ) == nil )
+  assert( L.is_equal( L.append_map_( posneg, l5 ), l6 ) )
+  assert( L.is_equal( L.append_map_( pairs2, l1, l2 ), l4 ) )
+  assert( L.is_equal( L.append_map_( pairs2, l5, l2 ), l7 ) )
+  assert( L.is_equal( L.append_map_( lid, large_lst ), large_lst ) )
 end
 
 do -- zip
@@ -602,7 +742,6 @@ do -- count
 end
 
 do -- map
-  local function double( x ) return 2 * x end
   local l1 = L.list( 1, 2, 3, 4 )
   local l2 = L.list( 1, 2, 3, 4, 5 )
   local l3 = L.list( 2, 4, 6, 8 )
@@ -613,6 +752,19 @@ do -- map
   local l4 = L.map( id, large_lst )
   assert( L.is_equal( large_lst, l4 ) )
   assert( l4 ~= large_lst )
+end
+
+do -- map_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 1, 2, 3, 4, 5 )
+  local l3 = L.list( 2, 4, 6, 8 )
+  assert( L.is_equal( L.map_( double, l1a ), l3 ) )
+  assert( L.map_( double, nil ) == nil )
+  assert( L.is_equal( L.map_( add2, l1b, l2 ), l3 ) )
+  assert( L.map_( double, nil, l2 ) == nil )
+  local l4 = L.map_( id, L.copy( large_lst ) )
+  assert( L.is_equal( large_lst, l4 ) )
 end
 
 do -- for_each
@@ -825,6 +977,19 @@ do -- filter
   assert( l4 ~= large_lst )
 end
 
+do -- filter_
+  local l1a = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 2, 4, 6, 8 )
+  local l3 = L.list( 1, 2, 3, 4 )
+  assert( L.is_equal( L.filter_( even, l1a ), l2 ) )
+  assert( L.filter_( even, nil ) == nil )
+  assert( L.is_equal( L.filter_( lt, l1b, 5 ), l3 ) )
+  assert( L.filter_( lt, l1, 1 ) == nil )
+  local l4 = L.filter_( lt, L.copy( large_lst ), LARGE+1 )
+  assert( L.is_equal( l4, large_lst ) )
+end
+
 do -- partition
   local l1 = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
   local l2 = L.list( 2, 4, 6, 8 )
@@ -846,6 +1011,27 @@ do -- partition
   assert( l13 == nil )
 end
 
+do -- partition_
+  local l1a = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 2, 4, 6, 8 )
+  local l3 = L.list( 1, 3, 5, 7 )
+  local l4 = L.list( 1, 2, 3, 4 )
+  local l5 = L.list( 5, 6, 7, 8 )
+  local l6, l7 = L.partition_( even, l1a )
+  assert( L.is_equal( l6, l2 ) )
+  assert( L.is_equal( l7, l3 ) )
+  local l8, l9 = L.partition_( even, nil )
+  assert( l8 == nil )
+  assert( l9 == nil )
+  local l10, l11 = L.partition_( lt, l1b, 5 )
+  assert( L.is_equal( l10, l4 ) )
+  assert( L.is_equal( l11, l5 ) )
+  local l12, l13 = L.partition_( lt, L.copy( large_lst ), LARGE+1 )
+  assert( L.is_equal( l12, large_lst ) )
+  assert( l13 == nil )
+end
+
 do -- remove
   local l1 = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
   local l2 = L.list( 2, 4, 6, 8 )
@@ -857,6 +1043,19 @@ do -- remove
   local l4 = L.remove( lt, large_lst, 1 )
   assert( L.is_equal( l4, large_lst ) )
   assert( l4 ~= large_lst )
+end
+
+do -- remove_
+  local l1a = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 2, 4, 6, 8 )
+  local l3 = L.list( 5, 6, 7, 8 )
+  assert( L.is_equal( L.remove_( odd, l1a ), l2 ) )
+  assert( L.remove_( odd, nil ) == nil )
+  assert( L.is_equal( L.remove_( lt, l1b, 5 ), l3 ) )
+  assert( L.remove_( lt, l1, 9 ) == nil )
+  local l4 = L.remove_( lt, L.copy( large_lst ), 1 )
+  assert( L.is_equal( l4, large_lst ) )
 end
 
 do -- find_tail
@@ -957,6 +1156,33 @@ do -- span
   assert( l15 == L.member( 5, large_lst ) )
 end
 
+do -- span_
+  local l1a = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
+  local l2 = L.list( 1, 2, 3, 4 )
+  local l3 = L.list( 5, 6, 7, 8 )
+  local l4, l5 = L.span_( lt_5, l1a )
+  assert( L.is_equal( l4, l2 ) )
+  assert( L.is_equal( l5, l3 ) )
+  local l6, l7 = L.span_( lt, l1b, 5 )
+  assert( L.is_equal( l6, l2 ) )
+  assert( L.is_equal( l7, l3 ) )
+  local l8, l9 = L.span_( lt_5, nil )
+  assert( l8 == nil )
+  assert( l9 == nil )
+  local l10, l11 = L.span_( lt, l1c, 1 )
+  assert( l10 == nil )
+  assert( l11 == l1c )
+  local l12, l13 = L.span_( lt, l1d, 9 )
+  assert( L.is_equal( l12, l1e ) )
+  assert( l13 == nil )
+  local l14, l15 = L.span_( lt_5, L.copy( large_lst ) )
+  assert( L.is_equal( l14, l2 ) )
+end
+
 do -- lbreak
   local l1 = L.list( 8, 7, 6, 5, 4, 3, 2, 1 )
   local l2 = L.list( 8, 7, 6, 5 )
@@ -966,7 +1192,6 @@ do -- lbreak
   assert( L.is_equal( l5, l3 ) )
   assert( l5 == L.member( 4, l1 ) )
   local l6, l7 = L.lbreak( lt, l1, 5 )
-
   assert( L.is_equal( l6, l2 ) )
   assert( L.is_equal( l7, l3 ) )
   assert( l7 == L.member( 4, l1 ) )
@@ -984,6 +1209,33 @@ do -- lbreak
   assert( l15 == L.member( 5, large_lst ) )
 end
 
+do -- lbreak_
+  local l1a = L.list( 8, 7, 6, 5, 4, 3, 2, 1 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l1d = L.copy( l1a )
+  local l1e = L.copy( l1a )
+  local l2 = L.list( 8, 7, 6, 5 )
+  local l3 = L.list( 4, 3, 2, 1 )
+  local l4, l5 = L.lbreak_( lt_5, l1a )
+  assert( L.is_equal( l4, l2 ) )
+  assert( L.is_equal( l5, l3 ) )
+  local l6, l7 = L.lbreak_( lt, l1b, 5 )
+  assert( L.is_equal( l6, l2 ) )
+  assert( L.is_equal( l7, l3 ) )
+  local l8, l9 = L.lbreak_( lt_5, nil )
+  assert( l8 == nil )
+  assert( l9 == nil )
+  local l10, l11 = L.lbreak_( gt, l1c, 1 )
+  assert( l10 == nil )
+  assert( L.is_equal( l11, l1d ) )
+  local l12, l13 = L.lbreak_( gt, l1d, 9 )
+  assert( L.is_equal( l12, l1e ) )
+  assert( l13 == nil )
+  local l14, l15 = L.lbreak_( gt, L.copy( large_lst ), 4 )
+  assert( L.is_equal( l14, L.list( 1, 2, 3, 4 ) ) )
+end
+
 do -- take_while
   local l1 = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
   local l2 = L.list( 1, 2, 3, 4 )
@@ -992,6 +1244,18 @@ do -- take_while
   assert( L.take_while( lt_5, nil ) == nil )
   assert( L.take_while( lt, l1, 1 ) == nil )
   assert( L.is_equal( L.take_while( lt_5, large_lst ), l2 ) )
+end
+
+do -- take_while_
+  local l1a = L.list( 1, 2, 3, 4, 5, 6, 7, 8 )
+  local l1b = L.copy( l1a )
+  local l1c = L.copy( l1a )
+  local l2 = L.list( 1, 2, 3, 4 )
+  assert( L.is_equal( L.take_while_( lt_5, l1a ), l2 ) )
+  assert( L.is_equal( L.take_while_( lt, l1b, 5 ), l2 ) )
+  assert( L.take_while_( lt_5, nil ) == nil )
+  assert( L.take_while_( lt, l1c, 1 ) == nil )
+  assert( L.is_equal( L.take_while_( lt_5, L.copy( large_lst ) ), l2 ) )
 end
 
 do -- drop_while
@@ -1017,6 +1281,18 @@ do -- delete
   assert( L.last( L.delete( LARGE, large_lst ) ) == LARGE-1 )
 end
 
+do -- delete_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 1, 1, 1, 1 )
+  assert( L.is_equal( L.delete_( 1, l1a ), L.list( 2, 3, 4 ) ) )
+  assert( L.is_equal( L.delete_( 4, l1b ), L.list( 1, 2, 3 ) ) )
+  assert( L.is_equal( L.delete_( 5, l1c ), l1d ) )
+  assert( L.delete_( 1, l2 ) == nil )
+  assert( L.delete_( 1, nil ) == nil )
+  assert( L.last( L.delete_( LARGE, L.copy( large_lst ) ) ) == LARGE-1 )
+end
+
 do -- delete_duplicates
   local l1 = L.list( 1, 2, 3, 4 )
   local l2 = L.list( 1, 1, 1, 1, 1, 1, 1 )
@@ -1029,6 +1305,21 @@ do -- delete_duplicates
   assert( L.delete_duplicates( nil ) == nil )
   local l5 = L.cons( 1, large_lst )
   assert( L.is_equal( L.delete_duplicates( l5 ), large_lst ) )
+end
+
+do -- delete_duplicates_
+  local l1a = L.list( 1, 2, 3, 4 )
+  local l1b = L.copy( l1a )
+  local l2 = L.list( 1, 1, 1, 1, 1, 1, 1 )
+  local l3 = L.list( 1, 2, 3, 4, 4, 4, 4 )
+  local l4 = L.list( 1, 1, 2, 2, 3, 3, 4, 4 )
+  assert( L.is_equal( L.delete_duplicates_( l2 ), L.list( 1 ) ) )
+  assert( L.is_equal( L.delete_duplicates_( l1a ), l1b ) )
+  assert( L.is_equal( L.delete_duplicates_( l3 ), l1b ) )
+  assert( L.is_equal( L.delete_duplicates_( l4 ), l1b ) )
+  assert( L.delete_duplicates_( nil ) == nil )
+  local l5 = L.cons( 1, L.copy( large_lst ) )
+  assert( L.is_equal( L.delete_duplicates_( l5 ), large_lst ) )
 end
 
 do -- traverse
