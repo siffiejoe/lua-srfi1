@@ -704,6 +704,68 @@ local function append_map( f, ... )
 end
 
 
+local function append_map_1( f, lst )
+  local newlist, lp
+  while lst ~= nil do
+    local res, tl = f( car( lst ) ), cdr( lst )
+    if tl ~= nil then
+      if res ~= nil then
+        if lp ~= nil then
+          set_cdr( lp, res )
+        else
+          newlist = res
+        end
+        lp = take_right( res, 1 )
+      end
+    else
+      if lp ~= nil then
+        set_cdr( lp, res )
+      else
+        newlist = res
+      end
+    end
+    lst = tl
+  end
+  return newlist
+end
+
+local function append_map_( f, ... )
+  local n = select( '#', ... )
+  if n <= 1 then
+    return append_map_1( f, (...) )
+  else
+    local cars, cdrs, newlist, lp = { ... }, { ... }
+    local last_loop = false
+    while true do
+      for i = 1, n do
+        local lst = cdrs[ i ]
+        if lst == nil then return newlist end
+        local tl = cdr( lst )
+        cars[ i ], cdrs[ i ] = car( lst ), tl
+        if tl == nil then last_loop = true end
+      end
+      local res = f( unpack( cars, 1, n ) )
+      if last_loop then
+        if lp ~= nil then
+          set_cdr( lp, res )
+        else
+          newlist = res
+        end
+      else
+        if res ~= nil then
+          if lp ~= nil then
+            set_cdr( lp, res )
+          else
+            newlist = res
+          end
+          lp = take_right( res, 1 )
+        end
+      end
+    end
+  end
+end
+
+
 local function zip( ... )
   local n = select( '#', ... )
   if n > 0 then
@@ -1633,7 +1695,7 @@ return {
   append_reverse = append_reverse,
   append_reverse_ = append_reverse_,
   append_map = append_map,
-  append_map_ = append_map, -- TODO
+  append_map_ = append_map_,
   zip = zip,
   unzip1 = unzip1,
   unzip2 = unzip2,

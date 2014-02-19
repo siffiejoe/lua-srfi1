@@ -27,8 +27,8 @@ as possible with the following exceptions:
     tables for that.
 *   Some functions are named slightly differently, e.g. characters
     which are invalid in Lua identifiers are replaced by an
-    underscore, or superfluous prefixes are removed from the function
-    names.
+    underscore, or superfluous prefixes/suffixes are missing from the
+    function names.
 *   The following functions are missing:
     *   `cons*`
     *   `pair?`, `not-pair?`, `proper-list?`, `dotted-list?` 
@@ -51,64 +51,27 @@ as possible with the following exceptions:
     *   `circular-list?` => `is_circular`
     *   `list=` => `is_equal`
     *   `list-ref` => `ref`
-    *   `car+cdr` => `car_cdr`
-    *   `take!` => `take_`
-    *   `take-right` => `take_right`
-    *   `drop-right` => `drop_right`
-    *   `drop-right!` => `drop_right_`
-    *   `split-at` => `split_at`
-    *   `split-at!` => `split_at_`
-    *   `last-pair` => `last_pair`
-    *   `length+` => `length_`
-    *   `append!` => `append_`
-    *   `concatenate!` => `concatenate_`
-    *   `reverse!` => `reverse_`
-    *   `append-reverse` => `append_reverse`
-    *   `append-reverse!` => `append_reverse_`
-    *   `for-each` => `for_each`
-    *   `pair-fold` => `pair_fold`
-    *   `fold-right` => `fold_right`
-    *   `unfold-right` => `unfold_right`
-    *   `pair-fold-right` => `pair_fold_right`
-    *   `reduce-right` => `reduce_right`
-    *   `append-map` => `append_map`
-    *   `append-map!` => `append_map_`
-    *   `map!` => `map_`
-    *   `pair-for-each` => `pair_for_each`
-    *   `map-in-order` => `map_in_order`
-    *   `filter!` => `filter_`
-    *   `partition!` => `partition_`
-    *   `remove!` => `remove_`
-    *   `find-tail` => `find_tail`
     *   `list-index` => `index`
-    *   `take-while` => `take_while`
-    *   `take-while!` => `take_while_`
-    *   `drop-while` => `drop_while`
-    *   `span!` => `span_`
     *   `break` => `lbreak`
     *   `break!` => `lbreak_`
-    *   `delete!` => `delete_`
-    *   `delete-duplicates` => `delete_duplicates`
-    *   `delete-duplicates!` => `delete_duplicates_`
+    *   In general, replace every non-alphanumeric character in the
+        Scheme function name with an underscore (`_`) to get the Lua
+        function name.
 *   The following functions have different behavior:
     *   `list=`: `is_equal` takes an optional third parameter used as
         a comparator function for the list elements.
     *   `unfold`: passes extra arguments to the `tail-gen` function.
-    *   `filter`: passes extra arguments to the predicate.
-    *   `filter!`: passes extra arguments to the predicate.
-    *   `partition`: passes extra arguments to the predicate.
-    *   `partition!`: passes extra arguments to the predicate.
-    *   `remove`: passes extra arguments to the predicate.
-    *   `remove!`: passes extra arguments to the predicate.
+    *   `filter`, `filter!`: pass extra arguments to the predicate.
+    *   `partition`, `partition!`: pass extra arguments to the
+        predicate.
+    *   `remove`, `remove!`: pass extra arguments to the predicate.
     *   `find`: passes extra arguments to the predicate.
     *   `find-tail`: passes extra arguments to the predicate.
-    *   `take-while`: passes extra arguments to the predicate.
-    *   `take-while!`: passes extra arguments to the predicate.
+    *   `take-while`, `take-while!`: pass extra arguments to the
+        predicate.
     *   `drop-while`: passes extra arguments to the predicate.
-    *   `span`: passes extra arguments to the predicate.
-    *   `span!`: passes extra arguments to the predicate.
-    *   `break`: passes extra arguments to the predicate.
-    *   `break!`: passes extra arguments to the predicate.
+    *   `span`, `span!`: pass extra arguments to the predicate.
+    *   `break`, `break!`: pass extra arguments to the predicate.
     *   `traverse`: new function, creates for-loop iterator.
 
 
