@@ -608,17 +608,13 @@ end
 
 
 local function reverse_( lst )
-  if lst == nil then
-    return nil
-  else
-    local c
-    while lst ~= nil do
-      local tl = cdr( lst )
-      set_cdr( lst, c )
-      c, lst = lst, tl
-    end
-    return c
+  local c
+  while lst ~= nil do
+    local tl = cdr( lst )
+    set_cdr( lst, c )
+    c, lst = lst, tl
   end
+  return c
 end
 
 
