@@ -736,6 +736,29 @@ do -- unzip4
   end ) )
 end
 
+do -- unzip5
+  local l1 = L.list( 1, true, "a", 1, 1 )
+  local l2 = L.list( 2, false, "b", 2, 2 )
+  local l3 = L.list( 3, true, "c", 3, 3 )
+  local l4 = L.list( 4, false, "d", 4, 4 )
+  local l5 = L.list( 4, true, "e" )
+  local l6 = L.list( l1, l2, l3, l4 )
+  local l7 = L.list( l1, l2, l3, l5 )
+  local l8, l9, l10, l11, l12 = L.unzip5( l6 )
+  assert( L.is_equal( l8, L.list( 1, 2, 3, 4 ) ) )
+  assert( L.is_equal( l9, L.list( true, false, true, false ) ) )
+  assert( L.is_equal( l10, L.list( "a", "b", "c", "d" ) ) )
+  assert( L.is_equal( l11, L.list( 1, 2, 3, 4 ) ) )
+  assert( L.is_equal( l12, L.list( 1, 2, 3, 4 ) ) )
+  local l13, l14, l15, l16, l17 = L.unzip5( nil )
+  assert( l13 == nil and l14 == nil and l15 == nil and l16 == nil
+          and l17 == nil )
+  assert( select( '#', L.unzip5( nil ) ) == 5 )
+  assert( not pcall( function()
+    return L.unzip5( l7 )
+  end ) )
+end
+
 do -- count
   local l1 = L.list( 1, 2, 3, 4, 5, 6, 7 )
   local l2 = L.list( 1, 1, 2, 2, 3, 3, 4, 4 )

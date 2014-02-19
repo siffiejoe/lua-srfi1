@@ -32,7 +32,6 @@ as possible with the following exceptions:
 *   The following functions are missing:
     *   `cons*`
     *   `pair?`, `not-pair?`, `proper-list?`, `dotted-list?` 
-    *   `unzip5`
     *   `memq`, `memv`
     *   `assoc`, `assq`, `assv`, `alist-cons`, `alist-copy`,
         `alist-delete`, `alist-delete!`
@@ -58,20 +57,24 @@ as possible with the following exceptions:
         Scheme function name with an underscore (`_`) to get the Lua
         function name.
 *   The following functions have different behavior:
-    *   `list=`: `is_equal` takes an optional third parameter used as
+    *   `copy`: does not work for dotted lists.
+    *   `is_equal`: takes an optional third parameter used as
         a comparator function for the list elements.
+    *   `take`, `take_`, `drop`, `take_right`, `drop_right`,
+        `drop_right_`, `split_at`, `split_at_`, `last`, and
+        `last_pair` don't work for dotted lists.
     *   `unfold`: passes extra arguments to the `tail-gen` function.
-    *   `filter`, `filter!`: pass extra arguments to the predicate.
-    *   `partition`, `partition!`: pass extra arguments to the
+    *   `filter`, `filter_`: pass extra arguments to the predicate.
+    *   `partition`, `partition_`: pass extra arguments to the
         predicate.
-    *   `remove`, `remove!`: pass extra arguments to the predicate.
+    *   `remove`, `remove_`: pass extra arguments to the predicate.
     *   `find`: passes extra arguments to the predicate.
-    *   `find-tail`: passes extra arguments to the predicate.
-    *   `take-while`, `take-while!`: pass extra arguments to the
+    *   `find_tail`: passes extra arguments to the predicate.
+    *   `take_while`, `take_while_`: pass extra arguments to the
         predicate.
-    *   `drop-while`: passes extra arguments to the predicate.
-    *   `span`, `span!`: pass extra arguments to the predicate.
-    *   `break`, `break!`: pass extra arguments to the predicate.
+    *   `drop_while`: passes extra arguments to the predicate.
+    *   `span`, `span_`: pass extra arguments to the predicate.
+    *   `lbreak`, `lbreak_`: pass extra arguments to the predicate.
     *   `traverse`: new function, creates for-loop iterator.
 
 

@@ -442,11 +442,11 @@ end
 
 local function ref( lst, n )
   if n < 1 then
-    error( "invalid index for 'list.ref'" )
+    error( "invalid index for 'ref'" )
   end
   lst = drop( lst, n-1 )
   if lst == nil then
-    error( "list too short for 'list.ref'" )
+    error( "list too short for 'ref'" )
   end
   return car( lst )
 end
@@ -454,7 +454,7 @@ end
 
 local function last_pair( lst )
   if lst == nil then
-    error( "'list.last_pair' called on empty list" )
+    error( "'last_pair' called on empty list" )
   end
   return take_right( lst, 1 )
 end
@@ -803,7 +803,7 @@ end
 
 local function safe_car( lst )
   if lst == nil then
-    error( "'list.unzip1' requires at least one element each" )
+    error( "'unzip1' requires at least one element each" )
   end
   return car( lst )
 end
@@ -827,7 +827,7 @@ local function unzip2( lst )
   local res1, res2, lp1, lp2
   while lst ~= nil do
     local e1, e2 = lselect( car( lst ), 2,
-      "'list.unzip2' requires at least two elements each" )
+      "'unzip2' requires at least two elements each" )
     if lp1 ~= nil then
       set_cdr( lp1, e1 )
       set_cdr( lp2, e2 )
@@ -844,7 +844,7 @@ local function unzip3( lst )
   local res1, res2, res3, lp1, lp2, lp3
   while lst ~= nil do
     local e1, e2, e3 = lselect( car( lst ), 3,
-      "'list.unzip3' requires at least three elements each" )
+      "'unzip3' requires at least three elements each" )
     if lp1 ~= nil then
       set_cdr( lp1, e1 )
       set_cdr( lp2, e2 )
@@ -862,7 +862,7 @@ local function unzip4( lst )
   local res1, res2, res3, res4, lp1, lp2, lp3, lp4
   while lst ~= nil do
     local e1, e2, e3, e4 = lselect( car( lst ), 4,
-      "'list.unzip4' requires at least four elements each" )
+      "'unzip4' requires at least four elements each" )
     if lp1 ~= nil then
       set_cdr( lp1, e1 )
       set_cdr( lp2, e2 )
@@ -875,6 +875,27 @@ local function unzip4( lst )
     lst = cdr( lst )
   end
   return res1, res2, res3, res4
+end
+
+
+local function unzip5( lst )
+  local res1, res2, res3, res4, res5, lp1, lp2, lp3, lp4, lp5
+  while lst ~= nil do
+    local e1, e2, e3, e4, e5 = lselect( car( lst ), 5,
+      "'unzip5' requires at least five elements each" )
+    if lp1 ~= nil then
+      set_cdr( lp1, e1 )
+      set_cdr( lp2, e2 )
+      set_cdr( lp3, e3 )
+      set_cdr( lp4, e4 )
+      set_cdr( lp5, e5 )
+    else
+      res1, res2, res3, res4, res5 = e1, e2, e3, e4, e5
+    end
+    lp1, lp2, lp3, lp4, lp5 = e1, e2, e3, e4, e5
+    lst = cdr( lst )
+  end
+  return res1, res2, res3, res4, res5
 end
 
 
@@ -1699,6 +1720,7 @@ return {
   unzip2 = unzip2,
   unzip3 = unzip3,
   unzip4 = unzip4,
+  unzip5 = unzip5,
   count = count,
   -- fold, unfold & map
   map = map,
