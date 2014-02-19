@@ -1392,12 +1392,13 @@ end
 
 
 local function any1( p, lst )
+  local r = false
   while lst ~= nil do
-    local r = p( car( lst ) )
-    if r then return r end
+    r = p( car( lst ) )
+    if r then break end
     lst = cdr( lst )
   end
-  return false
+  return r
 end
 
 local function any( p, ... )
@@ -1405,14 +1406,14 @@ local function any( p, ... )
   if n <= 1 then
     return any1( p, (...) )
   else
-    local cars, cdrs = { ... }, { ... }
+    local cars, cdrs, r = { ... }, { ... }, false
     while true do
       for i = 1, n do
         local lst = cdrs[ i ]
-        if lst == nil then return false end
+        if lst == nil then return r end
         cars[ i ], cdrs[ i ] = car( lst ), cdr( lst )
       end
-      local r = p( unpack( cars, 1, n ) )
+      r = p( unpack( cars, 1, n ) )
       if r then return r end
     end
   end
@@ -1420,12 +1421,13 @@ end
 
 
 local function every1( p, lst )
+  local r = true
   while lst ~= nil do
-    local r = p( car( lst ) )
-    if not r then return r end
+    r = p( car( lst ) )
+    if not r then break end
     lst = cdr( lst )
   end
-  return true
+  return r
 end
 
 local function every( p, ... )
@@ -1433,14 +1435,14 @@ local function every( p, ... )
   if n <= 1 then
     return every1( p, (...) )
   else
-    local cars, cdrs = { ... }, { ... }
+    local cars, cdrs, r = { ... }, { ... }, true
     while true do
       for i = 1, n do
         local lst = cdrs[ i ]
-        if lst == nil then return true end
+        if lst == nil then return r end
         cars[ i ], cdrs[ i ] = car( lst ), cdr( lst )
       end
-      local r = p( unpack( cars, 1, n ) )
+      r = p( unpack( cars, 1, n ) )
       if not r then return r end
     end
   end
